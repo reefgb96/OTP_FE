@@ -1,0 +1,6 @@
+{
+    "entryPoints": ["src/index.tsx"],
+    "out": "docs",
+    "exclude": ["**/*.test.tsx", "**/*.spec.tsx"],
+    "includeVersion": true
+}

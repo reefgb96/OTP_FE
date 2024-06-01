@@ -1,26 +1,33 @@
-import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+// React imports
+import React from "react";
+import {BrowserRouter as Router} from "react-router-dom";
+import {QueryClient, QueryClientProvider} from "react-query";
+import {Tooltip} from "react-tooltip";
 
-function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
+// Custom imports
+import {AppContent} from "./ui/components/AppContent";
+import {LoaderPage} from "./ui/components/Loader"
+import {PageWrapper} from "./AppWrappers"
+
+
+const loading = <LoaderPage/>
+const queryClient = new QueryClient();
+
+
+const App = () => {
+    return (
+        <QueryClientProvider client={queryClient}>
+            <PageWrapper>
+                <Router>
+                    <React.Suspense fallback={loading}>
+                        <Tooltip></Tooltip>
+                        <AppContent/>
+                    </React.Suspense>
+                </Router>
+            </PageWrapper>
+        </QueryClientProvider>
+    );
+    
 }
 
 export default App;

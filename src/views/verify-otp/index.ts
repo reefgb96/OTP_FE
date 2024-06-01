@@ -1,0 +1,1 @@
+export {VerifyOTP} from "./VerifyOtp"
