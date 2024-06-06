@@ -9,21 +9,22 @@ import {ForgotPassword} from "../../../views/forgot-password/ForgotPassword";
 import {ChangePassword} from "../../../views/change-password/ChangePassword";
 import {VerifyOTP} from "../../../views/verify-otp";
 import {RequireOTP} from "../OTP";
+import {ROUTES} from "../../../constants";
 
 const Page404 = React.lazy(() => import("../../../views/page404"));
 
 // const ForgotPassword = React.lazy(() => import("../../../views/forgot-password/ForgotPassword"));
 
 // const LoginPage = React.lazy(() => import("../../../views/login"));
-
+const {VERIFY_OTP, CHANGE_PASSWORD, FORGOT_PASSWORD, NOT_FOUND, DEFAULT, HOME} = ROUTES;
 export const AppContent = () => {
     const initialRoutes: RouteType[] = [
-        {path: "/", element: <Navigate to={"/forgot-password"}/>},
-        {path: "/forgot-password", element: <ForgotPassword />},
-        {path: "/change-password", element: <ChangePassword />},
-        {path: "/verify-otp", element: <VerifyOTP />},
-        {path: "/404", element: <Page404/>},
-        {path: "*", element: <Page404/>}
+        {path: HOME, element: <Navigate to={ROUTES.FORGOT_PASSWORD}/>},
+        {path: FORGOT_PASSWORD, element: <ForgotPassword />},
+        {path: CHANGE_PASSWORD, element: <ChangePassword />},
+        {path: VERIFY_OTP, element: <VerifyOTP />},
+        {path: NOT_FOUND, element: <Page404/>},
+        {path: DEFAULT, element: <Page404/>}
     ];
     
     const [routesObject, setRoutesObject] = useState(initialRoutes);
@@ -34,34 +35,34 @@ export const AppContent = () => {
     const rebuildRoutes = () => {
         const updatedRoutes = [
             {
-                path: "/",
+                path: HOME,
                 element: <DefaultLayout/>,
                 children: [
                     {
-                        path: "/forgot-password",
+                        path: FORGOT_PASSWORD,
                         element:
                             <ForgotPassword/>
                     },
                     {
-                        path: "/change-password",
+                        path: CHANGE_PASSWORD,
                         element:
                             <RequireOTP>
                                 <ChangePassword/>
                             </RequireOTP>
                     },
                     {
-                        path: "/verify-otp",
+                        path: VERIFY_OTP,
                         element:
                             <RequireOTP>
                                 <VerifyOTP/>
                             </RequireOTP>
                     },
                     {
-                        path: "/404",
+                        path: NOT_FOUND,
                         element: <Page404/>
                     },
                     {
-                        path: "*",
+                        path: DEFAULT,
                         element: <Page404/>
                     }
                 ]

@@ -1,4 +1,4 @@
-import React, {ChangeEvent, FormEvent, useState} from "react";
+import React, {ChangeEvent, FormEvent, useEffect, useState} from "react";
 import {useQueryClient, UseQueryOptions} from "react-query";
 
 // Custom imports
@@ -9,20 +9,23 @@ import {GenericTextInput} from "../../ui/components/Inputs";
 import {Button} from "../../ui/components/buttons";
 import {validateEmail} from "../../helpers/regex";
 import {QueryRequestNewOTP} from "../../services/API/query.service";
+import {useNavigate} from "react-router-dom";
+import {ROUTES} from "../../constants";
 
 const ForgotPassword = () => {
     const [inputValue, setInputValue] = useState<string>("");
     const [inputError, setInputError] = useState<boolean>(false);
     const [inputDisabled, setInputDisabled] = useState<boolean>(false);
-   
+    
     const options: Omit<UseQueryOptions<any, unknown, any, string>, "queryKey" | "queryFn"> | undefined = {
         enabled: false,
         retry: false,
         keepPreviousData: false,
         refetchOnWindowFocus: false,
     }
-    const {refetch: generateOTP} = QueryRequestNewOTP(options)
-   
+    const {refetch: generateOTP, isFetching: isGeneratingOtp} = QueryRequestNewOTP(options);
+    const navigate = useNavigate();
+    
     const handleInputChange = (e: ChangeEvent<HTMLInputElement>) => {
         setInputValue(e.target.value);
         setInputError(false);
@@ -38,11 +41,19 @@ const ForgotPassword = () => {
     const fetchNewOTP = async () => {
         try {
             // Example API call using React Query
-            await generateOTP();
+            await generateOTP().then((res) => {
+                
+                if (res.data.data !== null && res.data.result.success) {
+                    navigate(ROUTES.VERIFY_OTP)
+                }
+                console.log({res})
+            }).catch((err) => {
+                console.log({err})
+            })
             
             // Reset input value after successful submission
-            setInputValue("");
-            alert("OTP generated successfully. Check your email.");
+            // setInputValue("");
+            // alert("OTP generated successfully. Check your email.");
         } catch (error) {
             console.error("Error generating OTP:", error);
             alert("Failed to generate OTP. Please try again later.");
@@ -75,7 +86,7 @@ const ForgotPassword = () => {
             />
             {inputError &&
                 <Text text={"Please enter a valid email address."} color="red"/>} {/* Display error message */}
-            <Button type="submit" disabled={!inputValue}>
+            <Button onClick={fetchNewOTP} type="submit" disabled={!inputValue || isGeneratingOtp}>
                 Submit
             </Button>
         </Container>

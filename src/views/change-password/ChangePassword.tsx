@@ -9,6 +9,7 @@ import {GenericTextInput} from "../../ui/components/Inputs";
 import {Button} from "../../ui/components/buttons";
 import {validatePassword} from "../../helpers/regex";
 import {QueryUpdateUserPassword} from "../../services/API/query.service";
+import {ChangePasswordPageEnums} from "../../enums";
 
 const ChangePassword = () => {
     const [inputValue, setInputValue] = useState<string>("");
@@ -21,6 +22,8 @@ const ChangePassword = () => {
         refetchOnWindowFocus: false,
     }
     const {refetch: changePassword} = QueryUpdateUserPassword(inputValue, options)
+    const {ERROR_MSG_COLOR, ERROR_MESSAGE, TITLE, SUB_TITLE, PLACEHOLDER, KEY, NAME} = ChangePasswordPageEnums;
+    
     const handleInputChange = (e: ChangeEvent<HTMLInputElement>) => {
         setInputValue(e.target.value);
         setInputError(false);
@@ -59,24 +62,22 @@ const ChangePassword = () => {
     
     return (
         <Container onSubmit={handleSubmit}>
-            <Header text={"Change Password"}/>
-            <Text text={"Enter a new password."}/>
-            <Text text={"Try to remember it this time...."}/>
+            <Header text={TITLE}/>
+            <Text text={SUB_TITLE}/>
             <GenericTextInput
-                key={"text-input"}
+                key={KEY}
                 onChange={handleInputChange}
                 value={inputValue}
                 type={"text"}
                 disabled={inputDisabled}
-                name={"change password input"}
-                placeholder={"NOT password123...."}
+                name={NAME}
+                placeholder={PLACEHOLDER}
                 error={inputError}
-                data-tooltip-id={"custom-tooltip"}
-                data-tooltip-content={"8-20 chars, one capital case, one number, one symbol and no spaces."}
-                data-tooltip-place="top"
             />
-            {inputError &&
-                <Text text={"Please enter a valid password."} color="red"/>} {/* Display error message */}
+            {
+                inputError &&
+                <Text text={ERROR_MESSAGE} color={ERROR_MSG_COLOR} />
+            }
             <Button type="submit" disabled={!inputValue}>
                 Submit
             </Button>

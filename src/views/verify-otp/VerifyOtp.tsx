@@ -1,5 +1,5 @@
 // React imports
-import React, {ChangeEvent, useState} from 'react';
+import React, {ChangeEvent, useEffect, useState} from 'react';
 import {UseQueryOptions} from 'react-query';
 import {Button} from "../../ui/components/buttons";
 
@@ -11,6 +11,9 @@ import {QueryVerifyOTP} from "../../services/API/query.service";
 import useCountdown from '../../hooks/countdown';
 import Countdown from "../../ui/components/counters/CountDown";
 import {Container} from "../change-password/Wrappers";
+import {useNavigate} from "react-router-dom";
+import {ROUTES} from "../../constants";
+import {VerifyOtpPageEnums} from "../../enums";
 
 const VerifyOTP: React.FC = () => {
     const [otp, setOtp] = useState<string>('');
@@ -23,7 +26,10 @@ const VerifyOTP: React.FC = () => {
         keepPreviousData: false,
         refetchOnWindowFocus: false,
     }
-    const {refetch: verifyOTP} = QueryVerifyOTP(otp, options)
+    const {refetch: verifyOTP} = QueryVerifyOTP(otp, options);
+    const navigate = useNavigate();
+    
+    const {ERROR_MSG_COLOR, ERROR_MESSAGE, PLACEHOLDER, KEY, TITLE, NAME} = VerifyOtpPageEnums;
     
     const handleChange = (e: ChangeEvent<HTMLInputElement>): void => {
         const isValidInput: boolean = validateOTPInput(e.target.value);
@@ -42,22 +48,32 @@ const VerifyOTP: React.FC = () => {
         await verifyOTP();
     };
     
+    const navigateToChangePassword = (): void => {
+        if (minutes == 0 && seconds == 0) {
+            navigate(ROUTES.FORGOT_PASSWORD)
+        }
+    };
+    
+    useEffect(() => {
+        navigateToChangePassword();
+    }, [minutes, seconds]);
+    
     return (
         <Container onSubmit={handleSubmit}>
-            <Text text={"Enter OTP Code"}/>
+            <Text text={TITLE}/>
             <Countdown minutes={minutes} seconds={seconds} color={color}></Countdown>
             <GenericTextInput
-                key={"text-input"}
+                key={KEY}
                 onChange={handleChange}
                 value={otp}
                 type={"text"}
                 disabled={false}
-                name={"change password input"}
-                placeholder={"1234"}
+                name={KEY}
+                placeholder={PLACEHOLDER}
                 {...{error}}
             />
             <Button type="submit">Verify OTP</Button>
-            {error && <Text color={"red"} text={"Only digits are allowed."}/>}
+            {error && <Text color={ERROR_MSG_COLOR} text={ERROR_MESSAGE}/>}
         </Container>
     );
 };

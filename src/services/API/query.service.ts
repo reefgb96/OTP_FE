@@ -3,7 +3,6 @@ import {useQuery, UseQueryOptions} from "react-query";
 
 // Custom imports
 import ApiService from "./api.service";
-import {GenerateOTPDataType, UserQueryDataType} from "../../types/API";
 
 const apiService: ApiService = new ApiService()
 
