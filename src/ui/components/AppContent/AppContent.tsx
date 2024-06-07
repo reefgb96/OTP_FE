@@ -5,13 +5,9 @@ import {Navigate, useRoutes} from "react-router-dom";
 // Custom imports
 import {RouteType} from "../../../types";
 import DefaultLayout from "../../../layout/DefaultLayout";
-import {ForgotPassword} from "../../../views/forgot-password/ForgotPassword";
-import {ChangePassword} from "../../../views/change-password/ChangePassword";
-import {VerifyOTP} from "../../../views/verify-otp";
+import {ForgotPassword, VerifyOTP,ChangePassword, Page404} from "../../../views";
 import {RequireOTP} from "../OTP";
 import {ROUTES} from "../../../constants";
-
-const Page404 = React.lazy(() => import("../../../views/page404"));
 
 // const ForgotPassword = React.lazy(() => import("../../../views/forgot-password/ForgotPassword"));
 

@@ -6,19 +6,22 @@ import {Button} from "../../ui/components/buttons";
 // Custom imports
 import {Text} from "../../ui/components/texts/Text";
 import {GenericTextInput} from "../../ui/components/Inputs";
-import {validateOTPInput} from "../../helpers/regex";
+import {validateEmail, validateOTPInput} from "../../helpers/regex";
 import {QueryVerifyOTP} from "../../services/API/query.service";
 import useCountdown from '../../hooks/countdown';
 import Countdown from "../../ui/components/counters/CountDown";
 import {Container} from "../change-password/Wrappers";
 import {useNavigate} from "react-router-dom";
 import {ROUTES} from "../../constants";
-import {VerifyOtpPageEnums} from "../../enums";
+import {OtpEnums, VerifyOtpPageEnums} from "../../enums";
+import {PageBase} from "../PagesBase";
+import {getOtpStorageValues} from "../../helpers/OTP";
+import {cleanUpStorage} from "../../helpers/localStorage";
 
 const VerifyOTP: React.FC = () => {
     const [otp, setOtp] = useState<string>('');
     const [error, setError] = useState<boolean>(false);
-    const {minutes, seconds, color} = useCountdown(1);
+    const {minutes, seconds, color} = useCountdown(OtpEnums.OTP_EXPIRY_KEY, OtpEnums.OTP_EXPIRY_DURATION);
     
     const options: Omit<UseQueryOptions<any, unknown, any, string>, "queryKey" | "queryFn"> | undefined = {
         enabled: false,
@@ -26,7 +29,7 @@ const VerifyOTP: React.FC = () => {
         keepPreviousData: false,
         refetchOnWindowFocus: false,
     }
-    const {refetch: verifyOTP} = QueryVerifyOTP(otp, options);
+    const {refetch: verifyOTP} = QueryVerifyOTP(options, otp);
     const navigate = useNavigate();
     
     const {ERROR_MSG_COLOR, ERROR_MESSAGE, PLACEHOLDER, KEY, TITLE, NAME} = VerifyOtpPageEnums;
@@ -45,36 +48,56 @@ const VerifyOTP: React.FC = () => {
     const handleSubmit = async (e: React.FormEvent): Promise<void> => {
         e.preventDefault();
         
+        // Check if the input value is valid.
+        isValidOtp();
+        
+        // Make a React Query call to the API to verify OTP.
         await verifyOTP();
     };
     
-    const navigateToChangePassword = (): void => {
+    const isValidOtp = () => {
+        const isValid = validateOTPInput(otp);
+        if (!isValid) {
+            setError(true);
+            return;
+        }
+    }
+    
+    const verifyTime = (): void => {
         if (minutes == 0 && seconds == 0) {
-            navigate(ROUTES.FORGOT_PASSWORD)
+            cleanUpStorage();
+            navigate(ROUTES.FORGOT_PASSWORD);
+        }
+    };
+    
+    const verifyOTPKey = (): void => {
+        const {otpKey, otpExpiryTime} = getOtpStorageValues();
+        if (!otpKey || !otpExpiryTime) {
+            cleanUpStorage();
+            navigate(ROUTES.FORGOT_PASSWORD);
         }
     };
     
     useEffect(() => {
-        navigateToChangePassword();
-    }, [minutes, seconds]);
+        console.log({minutes, seconds})
+        verifyOTPKey();
+        verifyTime();
+    }, [seconds]);
     
     return (
-        <Container onSubmit={handleSubmit}>
-            <Text text={TITLE}/>
-            <Countdown minutes={minutes} seconds={seconds} color={color}></Countdown>
-            <GenericTextInput
-                key={KEY}
-                onChange={handleChange}
-                value={otp}
-                type={"text"}
-                disabled={false}
-                name={KEY}
-                placeholder={PLACEHOLDER}
-                {...{error}}
-            />
-            <Button type="submit">Verify OTP</Button>
-            {error && <Text color={ERROR_MSG_COLOR} text={ERROR_MESSAGE}/>}
-        </Container>
+        <PageBase
+            title={TITLE}
+            placeholder={PLACEHOLDER}
+            key={KEY}
+            name={NAME}
+            errorMsgColor={ERROR_MSG_COLOR}
+            errorMessage={ERROR_MESSAGE}
+            onInputChange={handleChange}
+            inputValidation={validateOTPInput}
+            apiCall={QueryVerifyOTP}
+            renderCountdown
+            onSubmit={handleSubmit}
+        />
     );
 };
 

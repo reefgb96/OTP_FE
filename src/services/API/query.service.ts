@@ -14,7 +14,7 @@ const RaiseQuery = (queryKey: string, queryFunction: () => any, options?: Omit<U
     return useQuery(queryKey, queryFunction, options);
 }
 
-export const QueryUpdateUserPassword = (newPass: string, options:Omit<UseQueryOptions<any, unknown, any, string>, "queryKey" | "queryFn"> | undefined) => {
+export const QueryUpdateUserPassword = (options:Omit<UseQueryOptions<any, unknown, any, string>, "queryKey" | "queryFn"> | undefined, newPass: string) => {
     return RaiseQuery("query-update-user-password",async () => {
         return await apiService.updateUserPass(newPass);
     },options)
@@ -26,7 +26,7 @@ export const QueryRequestNewOTP = (options:Omit<UseQueryOptions<any, unknown, an
     },options)
 };
 
-export const QueryVerifyOTP = (otp: string, options:Omit<UseQueryOptions<any, unknown, any, string>, "queryKey" | "queryFn"> | undefined) => {
+export const QueryVerifyOTP = (options:Omit<UseQueryOptions<any, unknown, any, string>, "queryKey" | "queryFn"> | undefined, otp: string) => {
     return RaiseQuery("query-get-unread-notifications-count",async () => {
         return await apiService.verifyOTP(otp)
     },options)

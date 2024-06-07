@@ -1,27 +1,27 @@
-import {useState, useEffect} from 'react';
+// React imports
+import { useState, useEffect } from 'react';
 
-const useCountdown = (initialMinutes: number) => {
-    const [time, setTime] = useState(initialMinutes * 60);
+// Custom imports
+import {calculateInitialTimeLeft, getOtpExpiryTime, startCountdown, updateColor} from "../../helpers/OTP";
+import {ROUTES} from "../../constants";
+
+const initialTime = getOtpExpiryTime('otpExpiryTime') || 5 * 60;
+const useCountdown = (expiryKey: string, expiryDuration: number) => {
+    const [time, setTime] = useState<number>(initialTime);
     const [color, setColor] = useState<string>('white');
     
     useEffect(() => {
-        const interval = setInterval(() => {
-            setTime((prevTime) => {
-                if (prevTime <= 0) {
-                    clearInterval(interval);
-                    return 0;
-                }
-                return prevTime - 1;
-            });
-        }, 1000);
-        
-        return () => clearInterval(interval);
-    }, []);
+        const otpExpiryTime = getOtpExpiryTime(expiryKey);
+        if (otpExpiryTime !== null) {
+            const initialTimeLeft = calculateInitialTimeLeft(otpExpiryTime, expiryDuration);
+            setTime(initialTimeLeft);
+            const clearIntervalFn = startCountdown(setTime);
+            return clearIntervalFn;
+        }
+    }, [expiryKey, expiryDuration]);
     
     useEffect(() => {
-        if (time <= 60) {
-            setColor(time % 2 === 0 ? 'red' : 'white');
-        }
+        setColor(updateColor(time));
     }, [time]);
     
     return {

@@ -3,6 +3,7 @@
 // Validate email format
 const validateEmail = (email: string): boolean => {
     const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    console.log("regex test: ", regex.test(email.trim()))
     return regex.test(email);
 };
 

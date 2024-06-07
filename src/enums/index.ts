@@ -9,6 +9,16 @@ export enum ERROR_PAGE {
     CONTENT = "The page you are looking for no longer exists.",
 }
 
+export enum ForgotPasswordPageEnums {
+    TITLE = "Forgot Password",
+    SUB_TITLE = "Enter your email address.",
+    KEY = "text-input",
+    NAME = "Forgot password input",
+    PLACEHOLDER = "Email address",
+    ERROR_MESSAGE = "Please enter a valid email address.",
+    ERROR_MSG_COLOR = "red",
+}
+
 export enum VerifyOtpPageEnums {
     TITLE = "Enter OTP Code",
     KEY = "text-input",
@@ -26,4 +36,11 @@ export enum ChangePasswordPageEnums {
     PLACEHOLDER = "NOT password123...",
     ERROR_MESSAGE = "8-20 chars, one capital case, one number, one symbol and no spaces.",
     ERROR_MSG_COLOR = "red",
+}
+
+export enum OtpEnums {
+    OTP_KEY = "otpKey",
+    OTP_VALUE = "1",
+    OTP_EXPIRY_KEY = "Otp expiry",
+    OTP_EXPIRY_DURATION = 5
 }

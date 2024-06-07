@@ -10,6 +10,7 @@ import {Button} from "../../ui/components/buttons";
 import {validatePassword} from "../../helpers/regex";
 import {QueryUpdateUserPassword} from "../../services/API/query.service";
 import {ChangePasswordPageEnums} from "../../enums";
+import {PageBase} from "../PagesBase";
 
 const ChangePassword = () => {
     const [inputValue, setInputValue] = useState<string>("");
@@ -21,7 +22,7 @@ const ChangePassword = () => {
         keepPreviousData: false,
         refetchOnWindowFocus: false,
     }
-    const {refetch: changePassword} = QueryUpdateUserPassword(inputValue, options)
+    const {refetch: changePassword} = QueryUpdateUserPassword(options, inputValue)
     const {ERROR_MSG_COLOR, ERROR_MESSAGE, TITLE, SUB_TITLE, PLACEHOLDER, KEY, NAME} = ChangePasswordPageEnums;
     
     const handleInputChange = (e: ChangeEvent<HTMLInputElement>) => {
@@ -43,10 +44,8 @@ const ChangePassword = () => {
             
             // Reset input value after successful submission
             setInputValue("");
-            alert("OTP generated successfully. Check your email.");
         } catch (error) {
-            console.error("Error generating OTP:", error);
-            alert("Failed to generate OTP. Please try again later.");
+            console.error("Error:", error);
         }
     }
     
@@ -61,27 +60,19 @@ const ChangePassword = () => {
     };
     
     return (
-        <Container onSubmit={handleSubmit}>
-            <Header text={TITLE}/>
-            <Text text={SUB_TITLE}/>
-            <GenericTextInput
-                key={KEY}
-                onChange={handleInputChange}
-                value={inputValue}
-                type={"text"}
-                disabled={inputDisabled}
-                name={NAME}
-                placeholder={PLACEHOLDER}
-                error={inputError}
-            />
-            {
-                inputError &&
-                <Text text={ERROR_MESSAGE} color={ERROR_MSG_COLOR} />
-            }
-            <Button type="submit" disabled={!inputValue}>
-                Submit
-            </Button>
-        </Container>
+        <PageBase
+            title={TITLE}
+            subTitle={SUB_TITLE}
+            placeholder={PLACEHOLDER}
+            key={KEY}
+            name={NAME}
+            errorMsgColor={ERROR_MSG_COLOR}
+            errorMessage={ERROR_MESSAGE}
+            onInputChange={handleInputChange}
+            inputValidation={validatePassword}
+            apiCall={QueryUpdateUserPassword}
+            onSubmit={handleSubmit}
+        />
     );
 };
 
