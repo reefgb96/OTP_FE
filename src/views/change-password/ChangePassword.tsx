@@ -1,4 +1,4 @@
-import React, {ChangeEvent, FormEvent, useState} from "react";
+import React, {ChangeEvent, FormEvent, useEffect, useState} from "react";
 import {UseQueryOptions} from "react-query";
 
 // Custom imports
@@ -9,8 +9,12 @@ import {GenericTextInput} from "../../ui/components/Inputs";
 import {Button} from "../../ui/components/buttons";
 import {validatePassword} from "../../helpers/regex";
 import {QueryUpdateUserPassword} from "../../services/API/query.service";
-import {ChangePasswordPageEnums} from "../../enums";
+import {ChangePasswordPageEnums, OtpEnums} from "../../enums";
 import {PageBase} from "../PagesBase";
+import {getLocalStorageValue} from "../../helpers/localStorage";
+import {ROUTES} from "../../constants";
+import {useNavigate} from "react-router-dom";
+import {OtpErrorToast, OtpSuccessToast} from "../../helpers/Toasts";
 
 const ChangePassword = () => {
     const [inputValue, setInputValue] = useState<string>("");
@@ -23,7 +27,8 @@ const ChangePassword = () => {
         refetchOnWindowFocus: false,
     }
     const {refetch: changePassword} = QueryUpdateUserPassword(options, inputValue)
-    const {ERROR_MSG_COLOR, ERROR_MESSAGE, TITLE, SUB_TITLE, PLACEHOLDER, KEY, NAME} = ChangePasswordPageEnums;
+    const {PASSWORD, ERROR_MSG_COLOR, ERROR_MESSAGE, TITLE, SUB_TITLE, PLACEHOLDER, KEY, NAME} = ChangePasswordPageEnums;
+    const navigate = useNavigate();
     
     const handleInputChange = (e: ChangeEvent<HTMLInputElement>) => {
         setInputValue(e.target.value);
@@ -40,11 +45,15 @@ const ChangePassword = () => {
     
     const updateUserPass = async () => {
         try {
-            await changePassword();
+            await changePassword().then(() =>{
+                OtpSuccessToast("Password updated successfully. 😊");
+                setInputValue("");
+                navigate(ROUTES.FORGOT_PASSWORD);
+            })
             
             // Reset input value after successful submission
-            setInputValue("");
         } catch (error) {
+            OtpErrorToast("Error updating password 😥");
             console.error("Error:", error);
         }
     }
@@ -59,6 +68,13 @@ const ChangePassword = () => {
         !inputError && await updateUserPass();
     };
     
+    useEffect(() => {
+        const otpKey = getLocalStorageValue(OtpEnums.OTP_KEY)
+        if (!otpKey) {
+            navigate(ROUTES.VERIFY_OTP)
+        }
+    },[])
+    
     return (
         <PageBase
             title={TITLE}
@@ -66,12 +82,14 @@ const ChangePassword = () => {
             placeholder={PLACEHOLDER}
             key={KEY}
             name={NAME}
+            inputType={PASSWORD}
             errorMsgColor={ERROR_MSG_COLOR}
             errorMessage={ERROR_MESSAGE}
             onInputChange={handleInputChange}
             inputValidation={validatePassword}
             apiCall={QueryUpdateUserPassword}
             onSubmit={handleSubmit}
+            {...{inputValue}}
         />
     );
 };

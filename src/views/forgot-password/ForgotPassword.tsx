@@ -1,4 +1,5 @@
-import React, {ChangeEvent, FormEvent, ReactElement, useEffect, useState} from "react";
+// React imports
+import React, {ChangeEvent, FormEvent, useState} from "react";
 import {UseQueryOptions} from "react-query";
 
 // Custom imports
@@ -8,11 +9,13 @@ import {useNavigate} from "react-router-dom";
 import {ROUTES} from "../../constants";
 import {PageBase} from "../PagesBase";
 import {ForgotPasswordPageEnums, OtpEnums} from "../../enums";
+import {setLocalStorageValue} from "../../helpers/localStorage";
+import {toast} from "react-toastify";
+import {OtpErrorToast, OtpSuccessToast} from "../../helpers/Toasts";
 
 const ForgotPassword = () => {
     const [inputValue, setInputValue] = useState<string>("");
     const [inputError, setInputError] = useState<boolean>(false);
-    const [inputDisabled, setInputDisabled] = useState<boolean>(false);
     
     const options: Omit<UseQueryOptions<any, unknown, any, string>, "queryKey" | "queryFn"> | undefined = {
         enabled: false,
@@ -20,7 +23,7 @@ const ForgotPassword = () => {
         keepPreviousData: false,
         refetchOnWindowFocus: false,
     }
-    const {refetch: generateOTP, isFetching: isGeneratingOtp} = QueryRequestNewOTP(options);
+    const {refetch: generateOTP } = QueryRequestNewOTP(options, inputValue);
     const {KEY, ERROR_MSG_COLOR, ERROR_MESSAGE, NAME, PLACEHOLDER, TITLE, SUB_TITLE} = ForgotPasswordPageEnums;
     const navigate = useNavigate();
     
@@ -37,8 +40,9 @@ const ForgotPassword = () => {
     }
     
     const OtpFetchSuccessHandler = () => {
-        localStorage.setItem(OtpEnums.OTP_KEY, OtpEnums.OTP_VALUE)
-        localStorage.setItem(OtpEnums.OTP_EXPIRY_KEY, new Date().getTime().toString())
+        OtpSuccessToast("OTP sent successfully");
+        setLocalStorageValue(OtpEnums.USER_EMAIL, inputValue)
+        setLocalStorageValue(OtpEnums.OTP_EXPIRY_KEY, new Date().getTime().toString())
         !inputError && navigate(ROUTES.VERIFY_OTP)
     }
     const fetchNewOTP = async () => {
@@ -49,6 +53,7 @@ const ForgotPassword = () => {
             }
             console.log({res})
         }).catch((err) => {
+            OtpErrorToast("Error sending OTP 😥");
             console.log({err})
         })
     }
@@ -73,6 +78,7 @@ const ForgotPassword = () => {
             errorMsgColor={ERROR_MSG_COLOR}
             errorMessage={ERROR_MESSAGE}
             onInputChange={handleInputChange}
+            inputValue={inputValue}
             inputValidation={validateEmail}
             apiCall={QueryRequestNewOTP}
             onSubmit={handleSubmit}

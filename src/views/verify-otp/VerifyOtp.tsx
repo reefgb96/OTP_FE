@@ -1,12 +1,12 @@
 // React imports
-import React, {ChangeEvent, useEffect, useState} from 'react';
+import React, {ChangeEvent, FormEvent, useEffect, useState} from 'react';
 import {UseQueryOptions} from 'react-query';
 import {Button} from "../../ui/components/buttons";
 
 // Custom imports
 import {Text} from "../../ui/components/texts/Text";
 import {GenericTextInput} from "../../ui/components/Inputs";
-import {validateEmail, validateOTPInput} from "../../helpers/regex";
+import {validateEmail, validateOTP, validateOTPInput} from "../../helpers/regex";
 import {QueryVerifyOTP} from "../../services/API/query.service";
 import useCountdown from '../../hooks/countdown';
 import Countdown from "../../ui/components/counters/CountDown";
@@ -16,7 +16,8 @@ import {ROUTES} from "../../constants";
 import {OtpEnums, VerifyOtpPageEnums} from "../../enums";
 import {PageBase} from "../PagesBase";
 import {getOtpStorageValues} from "../../helpers/OTP";
-import {cleanUpStorage} from "../../helpers/localStorage";
+import {cleanUpStorage, getLocalStorageValue, setLocalStorageValue} from "../../helpers/localStorage";
+import {OtpErrorToast, OtpSuccessToast} from "../../helpers/Toasts";
 
 const VerifyOTP: React.FC = () => {
     const [otp, setOtp] = useState<string>('');
@@ -35,7 +36,7 @@ const VerifyOTP: React.FC = () => {
     const {ERROR_MSG_COLOR, ERROR_MESSAGE, PLACEHOLDER, KEY, TITLE, NAME} = VerifyOtpPageEnums;
     
     const handleChange = (e: ChangeEvent<HTMLInputElement>): void => {
-        const isValidInput: boolean = validateOTPInput(e.target.value);
+        const isValidInput: boolean = validateOTP(e.target.value);
         if (!isValidInput) {
             setError(true);
             return;
@@ -45,18 +46,28 @@ const VerifyOTP: React.FC = () => {
         setOtp(prev => prev + e.target.value);
     };
     
-    const handleSubmit = async (e: React.FormEvent): Promise<void> => {
-        e.preventDefault();
+    const handleSubmit = async (e: FormEvent<HTMLFormElement>): Promise<void> => {
+        e.preventDefault(); // Prevent default form submission
         
         // Check if the input value is valid.
         isValidOtp();
         
         // Make a React Query call to the API to verify OTP.
-        await verifyOTP();
+        await verifyOTP().then((res) => {
+            OtpSuccessToast("OTP Verified. 😁");
+            setLocalStorageValue(OtpEnums.OTP_KEY, OtpEnums.OTP_VALUE)
+            navigate(ROUTES.CHANGE_PASSWORD);
+        }).catch((err) => {
+            // Handle errors
+            OtpErrorToast("Invalid OTP. 😭");
+            navigate(ROUTES.CHANGE_PASSWORD);
+        });
     };
+
+    
     
     const isValidOtp = () => {
-        const isValid = validateOTPInput(otp);
+        const isValid = validateOTP(otp);
         if (!isValid) {
             setError(true);
             return;
@@ -71,8 +82,8 @@ const VerifyOTP: React.FC = () => {
     };
     
     const verifyOTPKey = (): void => {
-        const {otpKey, otpExpiryTime} = getOtpStorageValues();
-        if (!otpKey || !otpExpiryTime) {
+        const isExpiryKey: boolean = !!getLocalStorageValue(OtpEnums.OTP_EXPIRY_KEY)
+        if (!isExpiryKey) {
             cleanUpStorage();
             navigate(ROUTES.FORGOT_PASSWORD);
         }
@@ -90,13 +101,15 @@ const VerifyOTP: React.FC = () => {
             placeholder={PLACEHOLDER}
             key={KEY}
             name={NAME}
+            inputType={"number"}
             errorMsgColor={ERROR_MSG_COLOR}
             errorMessage={ERROR_MESSAGE}
             onInputChange={handleChange}
-            inputValidation={validateOTPInput}
+            inputValidation={validateOTP}
             apiCall={QueryVerifyOTP}
             renderCountdown
             onSubmit={handleSubmit}
+            inputValue={otp}
         />
     );
 };

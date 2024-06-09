@@ -14,7 +14,6 @@ import useCountdown from "../../hooks/countdown";
 import {OtpEnums} from "../../enums";
 
 const PageBase = (props: BasePageProps) => {
-    const [inputValue, setInputValue] = useState<string>("");
     const [inputError, setInputError] = useState<boolean>(false);
     const [inputDisabled, setInputDisabled] = useState<boolean>(false);
     
@@ -30,6 +29,9 @@ const PageBase = (props: BasePageProps) => {
         apiCall,
         onSubmit,
         renderCountdown,
+        inputType,
+        onInputChange,
+        inputValue,
     } = props;
     
     const options: Omit<UseQueryOptions<any, unknown, any, string>, "queryKey" | "queryFn"> | undefined = {
@@ -39,15 +41,15 @@ const PageBase = (props: BasePageProps) => {
         refetchOnWindowFocus: false,
     };
     
+    // @ts-ignore
     const {refetch: apiRefetch, isFetching: isApiRefetching} = apiCall(options, inputValue);
     const navigate = useNavigate();
     
     // const { minutes, seconds, color } = useCountdown(OtpEnums.OTP_EXPIRY_KEY, OtpEnums.OTP_EXPIRY_DURATION);
     
     const handleInputChange = (e: ChangeEvent<HTMLInputElement>) => {
-        setInputValue(e.target.value);
         validateInput();
-        // setInputError(false);
+        onInputChange(e);
     };
     
     const validateInput = (): boolean => {
@@ -79,21 +81,6 @@ const PageBase = (props: BasePageProps) => {
         !inputError && isValid && (await handleApiCall());
     };
     
-    // const navigateAfterCountdown = (): void => {
-    //     if (minutes === 0 && seconds === 0) {
-    //         navigate(ROUTES.FORGOT_PASSWORD);
-    //     }
-    // };
-    //
-    // useEffect(() => {
-    //     renderCountdown && navigateAfterCountdown();
-    // }, [seconds]);
-    //
-    // useEffect(() => {
-    //     console.log({inputError})
-    // }, [inputError]);
-    
-    
     return (
         <Container onSubmit={onSubmit}>
             <Header text={title}/>
@@ -103,7 +90,7 @@ const PageBase = (props: BasePageProps) => {
                 key={key}
                 onChange={handleInputChange}
                 value={inputValue}
-                type="text"
+                type={inputType || "text"}
                 disabled={inputDisabled}
                 name={name}
                 placeholder={placeholder}

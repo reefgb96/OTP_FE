@@ -3,6 +3,8 @@ import {useQuery, UseQueryOptions} from "react-query";
 
 // Custom imports
 import ApiService from "./api.service";
+import {getLocalStorageValue} from "../../helpers/localStorage";
+import {OtpEnums} from "../../enums";
 
 const apiService: ApiService = new ApiService()
 
@@ -15,19 +17,22 @@ const RaiseQuery = (queryKey: string, queryFunction: () => any, options?: Omit<U
 }
 
 export const QueryUpdateUserPassword = (options:Omit<UseQueryOptions<any, unknown, any, string>, "queryKey" | "queryFn"> | undefined, newPass: string) => {
+    const userEmail: string | null = getLocalStorageValue(OtpEnums.USER_EMAIL)
+    
     return RaiseQuery("query-update-user-password",async () => {
-        return await apiService.updateUserPass(newPass);
+        return await apiService.updateUserPass(newPass, userEmail);
     },options)
 };
 
-export const QueryRequestNewOTP = (options:Omit<UseQueryOptions<any, unknown, any, string>, "queryKey" | "queryFn"> | undefined) => {
+export const QueryRequestNewOTP = (options:Omit<UseQueryOptions<any, unknown, any, string>, "queryKey" | "queryFn"> | undefined, emailTo: string) => {
     return RaiseQuery("query-get-unread-notifications-count",async () => {
-        return await apiService.requestOTP();
+        return await apiService.requestOTP(emailTo);
     },options)
 };
 
 export const QueryVerifyOTP = (options:Omit<UseQueryOptions<any, unknown, any, string>, "queryKey" | "queryFn"> | undefined, otp: string) => {
+    const userEmail: string | null = getLocalStorageValue(OtpEnums.USER_EMAIL)
     return RaiseQuery("query-get-unread-notifications-count",async () => {
-        return await apiService.verifyOTP(otp)
+        return await apiService.verifyOTP(otp, userEmail)
     },options)
 };

@@ -16,7 +16,7 @@ const GenericTextInput = (props: GenericTextInputProps) => {
         id,
         className,
         disabled = false,
-        error = false
+        error = false,
     } = props;
     
     return (

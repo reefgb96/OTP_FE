@@ -9,8 +9,8 @@ const validateEmail = (email: string): boolean => {
 
 // Validate OTP format.
 const validateOTP = (input: string): boolean => {
-    // Regular expression to match a string with exactly 4 digits
-    const regex = /^\d{4}$/;
+    // Regular expression to match a string with exactly 6 digits
+    const regex = /^.{6}$/;
     return regex.test(input);
 };
 

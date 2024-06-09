@@ -36,11 +36,13 @@ export enum ChangePasswordPageEnums {
     PLACEHOLDER = "NOT password123...",
     ERROR_MESSAGE = "8-20 chars, one capital case, one number, one symbol and no spaces.",
     ERROR_MSG_COLOR = "red",
+    PASSWORD = "Password"
 }
 
 export enum OtpEnums {
     OTP_KEY = "otpKey",
     OTP_VALUE = "1",
     OTP_EXPIRY_KEY = "Otp expiry",
-    OTP_EXPIRY_DURATION = 5
+    OTP_EXPIRY_DURATION = 5,
+    USER_EMAIL = "userEmail",
 }

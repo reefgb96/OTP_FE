@@ -37,6 +37,6 @@ export const updateColor = (time: number): string => {
 
 export const getOtpStorageValues = () => {
     const otpExpiryTime = getLocalStorageValue(OtpEnums.OTP_EXPIRY_KEY);
-    const otpKey = getLocalStorageValue(OtpEnums.OTP_KEY);
-    return {otpExpiryTime, otpKey}
+    // const otpKey = getLocalStorageValue(OtpEnums.OTP_KEY);
+    return otpExpiryTime;
 };

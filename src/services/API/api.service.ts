@@ -26,18 +26,18 @@ class ApiService {
         });
     }
     
-    public async updateUserPass(newPass: string): Promise<boolean> {
-        const response = await this._apiClient.post(`api/users/updatePass`, newPass);
+    public async updateUserPass(newPass: string, userEmail: string | null): Promise<boolean> {
+        const response = await this._apiClient.put(`api/users/updatePass`, {userEmail, newPass});
         return response.data;
     };
     
-    public async requestOTP(): Promise<boolean> {
-        const response = await this._apiClient.post(`api/otp/requestNew`);
+    public async requestOTP(emailTo: string): Promise<boolean> {
+        const response = await this._apiClient.post(`api/otp/requestNew`, emailTo);
         return response.data;
     };
     
-    public async verifyOTP(otp: string): Promise<boolean> {
-        const response = await this._apiClient.post(`api/users/updatePass`, otp);
+    public async verifyOTP(otp: string, userEmail: string | null): Promise<boolean> {
+        const response = await this._apiClient.post(`api/otp/verify`, {otp, userEmail});
         return response.data;
     };
     

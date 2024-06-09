@@ -2,7 +2,6 @@
 import React from "react";
 import {BrowserRouter as Router} from "react-router-dom";
 import {QueryClient, QueryClientProvider} from "react-query";
-import {Tooltip} from "react-tooltip";
 
 // Custom imports
 import {AppContent} from "./ui/components/AppContent";
@@ -20,7 +19,6 @@ const App = () => {
             <PageWrapper>
                 <Router>
                     <React.Suspense fallback={loading}>
-                        <Tooltip></Tooltip>
                         <AppContent/>
                     </React.Suspense>
                 </Router>
